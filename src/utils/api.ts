@@ -25,11 +25,10 @@ export interface OpenWeatherDataRes {
 }
 
 export async function fetchOpenWeatherData(
-	lat: number,
-	lon: number
+	cityName: string
 ): Promise<OpenWeatherDataRes> {
 	const res = await fetch(
-		`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPEN_WEAHTER_API_KEY}`
+		`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${OPEN_WEAHTER_API_KEY}`
 	);
 
 	if (!res.ok) {

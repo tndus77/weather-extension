@@ -1,18 +1,27 @@
 import React from 'react';
 import { fetchOpenWeatherData, OpenWeatherDataRes } from '../../utils/api';
 import CardMedia from '@mui/material/CardMedia';
-import { Box, Card, CardContent, Typography, InputBase } from '@mui/material';
+import {
+	Box,
+	Card,
+	CardContent,
+	Typography,
+	InputBase,
+	Button,
+} from '@mui/material';
 
 const convertToCelsius = (fahrenheit: number) => {
 	const celsius = fahrenheit - 273.15;
 	return Math.round(celsius);
 };
 
-const WeatherCard: React.FC<{ lat: number; lon: number }> = ({ lat, lon }) => {
+const WeatherCard: React.FC<{ city: string; onDelete: () => void }> = ({
+	city,
+	onDelete,
+}) => {
 	const [weatherData, setWeatherData] = React.useState<OpenWeatherDataRes>();
 	React.useEffect(() => {
-		fetchOpenWeatherData(lat, lon).then((data) => {
-			console.log('data', data);
+		fetchOpenWeatherData(city).then((data) => {
 			setWeatherData(data);
 		});
 	}, []);
@@ -28,14 +37,15 @@ const WeatherCard: React.FC<{ lat: number; lon: number }> = ({ lat, lon }) => {
 					<CardContent>
 						<Typography variant="h5">{weatherData.name}</Typography>
 						<Typography variant="body1">
-							{convertToCelsius(weatherData.main.temp)}
+							🌡️ 현재 온도: {convertToCelsius(weatherData.main.temp)}°C
 						</Typography>
 						<Typography variant="body1">
-							체감 온도: {convertToCelsius(weatherData.main.feels_like)}
+							💨 체감 온도: {convertToCelsius(weatherData.main.feels_like)}°C
 						</Typography>
 						<Typography variant="body1">
-							날씨: {weatherData.weather[0].main}
+							🌞 날씨: {weatherData.weather[0].main}
 						</Typography>
+						<Button onClick={onDelete}>삭제</Button>
 					</CardContent>
 				</CardMedia>
 			</Card>
