@@ -1,5 +1,6 @@
 chrome.runtime.onMessage.addListener((message) => {
 	if (message.type === 'WEATHER_UPDATE') {
+		console.log('Received weather update:', message);
 		const banner = document.createElement('div');
 		banner.innerText = `🌦 날씨 변경: ${message.weather}`;
 		banner.style.position = 'fixed';

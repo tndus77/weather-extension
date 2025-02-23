@@ -1,7 +1,7 @@
 import { getStoredCities } from '../utils/storage';
 
 const OPEN_WEAHTER_API_KEY = 'e1aeeb160e946cc9bc8e660be59017b9';
-let lastWeather: string | null = 'Rainy';
+let lastWeatherByCity: Record<string, string | null> = {};
 
 const fetchWeather = async () => {
 	try {
@@ -17,6 +17,9 @@ const fetchWeather = async () => {
 
 			if (data.weather) {
 				const currentWeather = data.weather[0].main;
+				const lastWeather = lastWeatherByCity[city];
+				// const lastWeather = 'Clear';
+
 				// 이전 날씨와 비
 				if (lastWeather && lastWeather !== currentWeather) {
 					chrome.notifications.create({
@@ -29,11 +32,12 @@ const fetchWeather = async () => {
 					// content로 전달
 					chrome.runtime.sendMessage({
 						type: 'WEATHER_UPDATE',
+						city: city,
 						weather: currentWeather,
 					});
 				}
 
-				lastWeather = currentWeather;
+				lastWeatherByCity[city] = currentWeather;
 			}
 		}
 	} catch (e) {
@@ -42,7 +46,7 @@ const fetchWeather = async () => {
 };
 
 // 일정 주기로 날씨 체크
-chrome.alarms.create('weatherCheck', { periodInMinutes: 0.2 });
+chrome.alarms.create('weatherCheck', { periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener((alarm) => {
 	if (alarm.name === 'weatherCheck') {
 		fetchWeather();
@@ -51,3 +55,15 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
 // 초기 실행
 fetchWeather();
+
+chrome.runtime.onInstalled.addListener(() => {
+	console.log('Background script loaded');
+});
+
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+	if (tabs[0]?.id) {
+		chrome.tabs.sendMessage(tabs[0].id, { type: 'PING' }, (response) => {
+			console.log('Content script response:', response);
+		});
+	}
+});
